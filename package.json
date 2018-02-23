@@ -1,0 +1,15 @@
+{
+    "name": "nodeMemoryDB",
+    "author": "tinhour <fangfeng3@huawei.com>",
+    "version": "1.0.0",
+    "describe": "this is a simple memory DB service build in nodejs",
+    "dependencies": {
+        "body-parser": "^1.18.2",
+        "express": "^4.16.2",
+        "forever": "^0.15.3"
+    },
+    "scripts": {
+        "foreverstart": "forever foreverstart.json",
+        "start": "node index.js"
+    }
+}
