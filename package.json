@@ -1,15 +1,32 @@
 {
-    "name": "nodeMemoryDB",
-    "author": "tinhour <fangfeng3@huawei.com>",
-    "version": "1.0.0",
-    "describe": "this is a simple memory DB service build in nodejs",
-    "dependencies": {
-        "body-parser": "^1.18.2",
-        "express": "^4.16.2",
-        "forever": "^0.15.3"
-    },
-    "scripts": {
-        "foreverstart": "forever foreverstart.json",
-        "start": "node index.js"
-    }
+  "name": "nodememorydb",
+  "author": "tinhour <fangfeng3@huawei.com>",
+  "version": "1.0.0",
+  "describe": "this is a simple memory DB service build in nodejs",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "forever": "^0.15.3"
+  },
+  "scripts": {
+    "foreverstart": "forever foreverstart.json",
+    "start": "node index.js"
+  },
+  "description": "this is a simple memory DB service build in nodejs  after install,then input  ## npm run start ,this will run listen 81 port ,start a server as a memory DB.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tinhour/nodeMemoryDB.git"
+  },
+  "keywords": [
+    "memoryDB",
+    "nodejs",
+    "simple",
+    "database"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tinhour/nodeMemoryDB/issues"
+  },
+  "homepage": "https://github.com/tinhour/nodeMemoryDB#readme"
 }
