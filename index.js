@@ -67,10 +67,31 @@ app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
     extended: true
 }));
+
+// 将日志写入功能封装
+function writeLog(level, message, data = {}) {
+    const logEntry = {
+        timestamp: formatTime(),
+        level,
+        message,
+        data
+    };
+    
+    fs.appendFile(webLog, JSON.stringify(logEntry) + '\n', (err) => {
+        if (err) console.error('Error writing log:', err);
+    });
+}
+
+// 在中间件中使用
 app.use(function (req, res, next) {
-    console.log('[' + formatTime() + ']', req.method, req.url);
+    writeLog('info', 'Request received', {
+        method: req.method,
+        url: req.url,
+        ip: req.ip
+    });
     next();
 });
+
 //allow custom header and CORS
 app.all('*', function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -98,33 +119,40 @@ app.all('/', function (req, res) {
         str += ' </body></html>'
         res.end(str)
     });
-//get data by key ,and can with meta for metadata
-app.all('/get', function (req, res) {
-    var captureStart = new Date();
-    var key = req.params.key;
-    var meta = req.params.meta || 0;
-    if (key) {
-        if (DATA[key]) {
-            if (!meta) DATA[key].metaData.getCount++;
-            res.json({
-                "message": "get " + key + " success",
-                "data": meta ? DATA[key].metaData : DATA[key].data
-            })
+// 将路由处理分离到单独的模块
+const router = express.Router();
+
+router.all('/get', async (req, res, next) => {
+    try {
+        var captureStart = new Date();
+        var key = req.params.key;
+        var meta = req.params.meta || 0;
+        if (key) {
+            if (DATA[key]) {
+                if (!meta) DATA[key].metaData.getCount++;
+                res.json({
+                    "message": "get " + key + " success",
+                    "data": meta ? DATA[key].metaData : DATA[key].data
+                })
+            } else {
+                res.json({
+                    "error": "key not found in parameter",
+                    "message": "key not found in parameter"
+                })
+            }
         } else {
             res.json({
-                "error": "key not found in parameter",
-                "message": "key not found in parameter"
+                "message": "get allData success",
+                "data": DATA
             })
         }
-    } else {
-        res.json({
-            "message": "get allData success",
-            "data": DATA
-        })
+    } catch (err) {
+        next(err);
     }
 });
-//add data by key,value
-app.all("/set", function (req, res) {
+
+router.all('/set', async (req, res, next) => {
+    try {
         var captureStart = new Date();
         var key = req.params.key || req.body.key;
         var value = req.params.value || req.body.value;
@@ -161,8 +189,14 @@ app.all("/set", function (req, res) {
                 "message": "key not found in parameter"
             })
         }
-    })
-    //del by  key
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.use('/', router);
+
+//del by  key
 app.all("/del", function (req, res) {
         var captureStart = new Date();
         var key = req.params.key;
@@ -254,8 +288,91 @@ function persitDATA(filePath) {
         }
     });
 }
-var service = app.listen(81, function () {
+
+// 将配置提取到单独的对象
+const config = {
+    port: 81,
+    saveInterval: 5 * 1000,
+    dataPath: path.join(__dirname, 'data/momory.json'),
+    logPath: path.join(__dirname, 'logs/weblog.log')
+};
+
+var service = app.listen(config.port, function () {
     var port = service.address().port;
     console.log('[%s] Service listening at port %s cost Time %ds', formatTime(), port, (new Date() - startTime) / 1000);
     console.log('[%s] double press Ctrl+C to stop service', formatTime())
 })
+
+// 添加统一的错误处理中间件
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({
+        error: "Internal Server Error",
+        message: err.message
+    });
+});
+
+// 将数据持久化逻辑封装
+class DataStore {
+    constructor(filePath) {
+        this.filePath = filePath;
+        this.data = {};
+        this.meta = {};
+    }
+
+    async load() {
+        try {
+            const content = await fs.promises.readFile(this.filePath);
+            const parsed = JSON.parse(content);
+            this.data = parsed.DATA;
+            this.meta = parsed.DATAMETA;
+        } catch (err) {
+            console.warn('Starting with empty data store');
+        }
+    }
+
+    async save() {
+        try {
+            const dir = path.dirname(this.filePath);
+            await fs.promises.mkdir(dir, { recursive: true });
+            await fs.promises.writeFile(
+                this.filePath,
+                JSON.stringify({
+                    DATA: this.data,
+                    DATAMETA: this.meta
+                })
+            );
+            console.log('Data saved successfully');
+        } catch (err) {
+            console.error('Failed to save data:', err);
+        }
+    }
+}
+
+const store = new DataStore(config.dataPath);
+
+// 添加基本的安全中间件
+const helmet = require('helmet');
+app.use(helmet());
+
+// 添加请求速率限制
+const rateLimit = require('express-rate-limit');
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15分钟
+    max: 100 // 限制每个IP 15分钟内最多100个请求
+});
+app.use(limiter);
+
+// 添加数据验证
+const validateKey = (req, res, next) => {
+    const key = req.params.key || req.body.key;
+    if (!key || typeof key !== 'string') {
+        return res.status(400).json({
+            error: 'Invalid key',
+            message: 'Key must be a non-empty string'
+        });
+    }
+    next();
+};
+
+app.use('/set', validateKey);
