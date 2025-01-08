@@ -1,8 +1,8 @@
 {
   "name": "nodememorydb",
   "author": "tinhour <fangfeng3@huawei.com>",
-  "version": "1.0.0",
-  "describe": "this is a simple memory DB service build in nodejs",
+  "version": "1.0.1",
+  "describe": "A simple in-memory database service built with Node.js",
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
@@ -12,7 +12,6 @@
     "foreverstart": "forever foreverstart.json",
     "start": "node index.js"
   },
-  "description": "this is a simple memory DB service build in nodejs  after install,then input  ## npm run start ,this will run listen 81 port ,start a server as a memory DB.",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -21,7 +20,7 @@
   "keywords": [
     "memoryDB",
     "nodejs",
-    "simple",
+    "simpleDatabase",
     "database"
   ],
   "license": "MIT",
