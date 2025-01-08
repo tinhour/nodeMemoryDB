@@ -131,8 +131,3 @@ curl http://localhost:81/clear
 ## 许可证
 
 MIT 
-
-```javascript
-npm install nodeMemoryDB 
-npm run start
-```
