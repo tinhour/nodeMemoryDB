@@ -1,5 +1,7 @@
 # nodeMemoryDB
 
+[简体中文](./README.md) | English
+
 A simple in-memory database service built with Node.js.
 
 ## Features

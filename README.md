@@ -1,5 +1,7 @@
 # nodeMemoryDB
 
+[English](./README_EN.md) | 简体中文
+
 一个基于 Node.js 构建的简单内存数据库服务。
 
 ## 功能特点
