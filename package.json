@@ -1,7 +1,7 @@
 {
   "name": "nodememorydb",
   "author": "tinhour <fangfeng3@huawei.com>",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "describe": "A simple in-memory database service built with Node.js",
   "dependencies": {
     "body-parser": "^1.18.2",
