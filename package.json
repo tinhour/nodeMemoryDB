@@ -1,5 +1,5 @@
 {
-  "name": "nodememorydb",
+  "name": "@tinhour/nodememorydb",
   "author": "tinhour <fangfeng3@huawei.com>",
   "version": "1.0.1",
   "describe": "A simple in-memory database service built with Node.js",
@@ -15,7 +15,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tinhour/nodeMemoryDB.git"
+    "url": " https://github.com/tinhour/nodeMemoryDB.git"
   },
   "keywords": [
     "memoryDB",
